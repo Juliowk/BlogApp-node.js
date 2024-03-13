@@ -14,15 +14,21 @@
 // O Mongoose é uma biblioteca Node.js que facilita a modelagem de objetos MongoDB para aplicativos 
 // web, fornecendo uma interface simples e baseada em esquemas para interagir com o banco de dados MongoDB.
 
+// (INFO) BIBLIOTECA PATH:
+// A biblioteca `path` é um módulo do Node.js que fornece utilitários para manipular caminhos de arquivos e 
+// diretórios de forma consistente e portável entre diferentes sistemas operacionais. Ele simplifica a criação 
+// e manipulação de caminhos, permitindo a construção segura de caminhos de arquivos em aplicativos Node.js.
+
 const express = require('express');
 const handlebars = require('express-handlebars');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const path = require('path');
+
+const app = express();
 
 // REQUIRE DE ROTAS:
 const routerAdmin = require('./routes/admin');
-
-const app = express();
 
 // CONFIGURAÇÕES DO BODY-PARSER (Middleware):
 app.use(bodyParser.urlencoded({ extended: true })); // irá analisar dados de formulários URL-encoded
@@ -37,6 +43,10 @@ app.engine('handlebars', handlebars.engine({ // hendlebars setado como templete 
      }
 }));
 app.set('view engine', 'handlebars'); // indica ao Express que o motor de visualização padrão a ser usado é o Handlebars
+
+// CONFIGURAÇÕES DA PASTA PUBLIC (PATH):
+// (configura o Express para servir arquivos estáticos localizados no diretório "public" do servidor);
+app.use(express.static(path.join(__dirname, "public")));
 
 // ROTAS:
 app.use('/adm', routerAdmin);
