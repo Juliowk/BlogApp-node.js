@@ -24,11 +24,29 @@ const handlebars = require('express-handlebars');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
+const session = require('express-session');
+const flash = require('connect-flash');
 
 const app = express();
 
 // REQUIRE DE ROTAS:
 const routerAdmin = require('./routes/admin');
+
+// CONFIGURAÇÕES DE SESSÃO:
+app.use(session({ // utilizado para armazenar dados de sessão do usuário entre diferentes requisições HTTP
+     secret: 'qualquercoisa',
+     resave: true,
+     saveUninitialized: true
+}));
+app.use(flash());
+
+// MIDDLEWARE:
+app.use((req, res, next) => {
+     // VARIAVEIS GLOBAIS: (acessaveis em qualquer parte do projeto)
+     res.locals.success_msg = req.flash("success_msg");
+     res.locals.error_msg = req.flash("error_msg");
+     next();
+});
 
 // CONFIGURAÇÕES DO BODY-PARSER (Middleware):
 app.use(bodyParser.urlencoded({ extended: true })); // irá analisar dados de formulários URL-encoded
@@ -47,6 +65,14 @@ app.set('view engine', 'handlebars'); // indica ao Express que o motor de visual
 // CONFIGURAÇÕES DA PASTA PUBLIC (PATH):
 // (configura o Express para servir arquivos estáticos localizados no diretório "public" do servidor);
 app.use(express.static(path.join(__dirname, "public")));
+
+// CONFIGURAÇÕES DO MONGOOSE: (relizando conexão)
+mongoose.connect("mongodb://localhost/blogapp")
+     .then(() => {
+          console.log("Conectado ao mongo");
+     }).catch((error) => {
+          console.log("Erro ao se conectar:" + error);
+     });
 
 // ROTAS:
 app.use('/adm', routerAdmin);
