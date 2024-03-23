@@ -6,17 +6,40 @@
 
 {{#each categorias}}
   <div class="card mt-3">
+
     <div class="card-body">
+
       <h4>{{nome}}</h4>
       <small>Slug: {{slug}}</small>
       <br />
+
       <small>Data-de-criação: {{date}}</small>
+
       <br />
-      <a href="/adm/categorias/edit/{{_id}}"><button
-          class="btn btn-success mt-3"
-        >Editar categoria</button></a>
+
+      <div class="row">
+
+        <div class="col-auto">
+          <a href="/adm/categorias/edit/{{_id}}">
+
+            <button class="btn btn-success mt-3">
+              Editar Categoria
+            </button>
+          </a>
+        </div>
+
+        <div class="col-auto">
+          <form action="/adm/categorias/deletar" method="post">
+            <input type="hidden" name="id" value="{{_id}}" />
+            <button type="submit" class="btn btn-danger mt-3">Deletar Categoria</button>
+          </form>
+        </div>
+
+      </div>
+
     </div>
   </div>
 {{else}}
+  <h4 class="mt-5">Nenhuma categoria registrada</h4>
 
 {{/each}}

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-// DEFINIÇÃO DA COLLECTION 'CATEGORIAS':
+// DEFININDO AS COLLECTIONS:
 const mongoose = require('mongoose');
 const Categoria = require('../models/Categoria');
+const Postagem = require("../models/Postagens");
 
 // ROTAS:
 router.get("/", (req, res) => {
@@ -114,6 +115,61 @@ router.post("/categorias/edit", (req, res) => {
                });
      }
 
+});
+
+router.post("/categorias/deletar", (req, res) => {
+     Categoria.deleteOne({ _id: req.body.id })
+          .then(() => {
+               req.flash("success_msg", "Categoria deletada com sucesso!");
+               res.redirect("/adm/categorias");
+          })
+          .catch((error) => {
+               req.flash("error_msg", "Houve um erro ao deletar a categoria");
+               res.redirect("/adm/categorias");
+          })
+});
+
+router.get("/postagens", (req, res) => {
+     res.render("admin/postagens");
+});
+
+router.get("/postagens/add", (req, res) => {
+     Categoria.find()
+          .then((categorias) => res.render("admin/addpostagem", { categorias: categorias }))
+          .catch((erro) => {
+               req.flash("error_msg", "Houve um erro ao carregar o formulário");
+               res.redirect("adm/postagens");
+          });
+});
+
+router.post("/postagens/nova", (req, res) => {
+     var erros = [];
+     if (req.body.categoria == 0) {
+          erros.push({ texto: "Categoria inválida, registre uma categoria!" });
+     }
+
+     if (erros.length > 0) {
+          res.render("admin/addpostagem", { erros: erros });
+     } else {
+          const novaPostagem = {
+               titulo: req.body.titulo,
+               slug: req.body.slug,
+               descricao: req.body.descricao,
+               conteudo: req.body.conteudo,
+               categoria: req.body.categoria
+          }
+          new Postagem(novaPostagem).save()
+               .then(() => {
+                    console.log("sucesso ao adicionar postagem!");
+                    req.flash("success_msg", "Postagem criada com sucesso!");
+                    res.redirect("/adm/postagens");
+               })
+               .catch((eror) => {
+                    console.log("erro ao adicionar postagem!");
+                    req.flash("error_msg", "Houve um erro ao criar a postagem!");
+                    res.redirect("/adm/postagens");
+               });
+     }
 });
 
 module.exports = router;
