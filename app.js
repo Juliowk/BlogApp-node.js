@@ -27,6 +27,8 @@ const path = require('path');
 const session = require('express-session');
 const flash = require('connect-flash');
 
+const Postagem = require("./models/Postagens"); // MODEL
+
 const app = express();
 
 // REQUIRE DE ROTAS:
@@ -75,6 +77,18 @@ mongoose.connect("mongodb://localhost/blogapp")
      });
 
 // ROTAS:
+app.get("/", (req, res) => {
+     Postagem.find().populate("categoria").sort({ data: "desc" })
+          .then((postagens) => { res.render("index", { postagens: postagens }); })
+          .catch((error) => {
+               req.flash("error_msg", "Houve um erro interno")
+               res.render("/404");
+          });
+});
+
+app.get("/404", (req, res) => {
+     res.send("Erro 404!");
+})
 app.use('/adm', routerAdmin);
 
 const PORT = 3000;

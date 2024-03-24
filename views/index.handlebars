@@ -1,0 +1,28 @@
+<div class="jumbotron">
+  <h1 class="display-4">Bem vindo ao blog feito em Node.js</h1>
+  <p class="lead">Uma aplicação REST simples desenvolvida no ambiente Node.js,
+    utilizando Express.js, Mongoose, e outras tecnologias.
+  </p>
+  <hr class="my-4" />
+  <p class="text-secondary">Utilize o botão abaixo para criar sua conta.</p>
+  <a class="btn btn-secondary btn-lg" href="#" role="button">Crie uma conta</a>
+</div>
+
+<hr />
+<h2>Postagens recentes:</h2>
+
+{{#each postagens}}
+  <div class="card mt-3">
+    <div class="card-body">
+      <h2>{{titulo}}</h2>
+      <p><strong>Descrição:</strong> {{descricao}}</p>
+      <small><strong>Data:</strong> {{data}}</small>
+      <br />
+      <small><strong>Categoria:</strong> {{categoria.nome}}</small>
+      <br />
+    </div>
+  </div>
+{{else}}
+  <h5>Nenhuma postagem</h5>
+{{/each}}
+<hr class="mb-2" />

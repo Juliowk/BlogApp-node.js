@@ -11,10 +11,6 @@ router.get("/", (req, res) => {
      res.render("admin/index");
 });
 
-router.get("/posts", (req, res) => {
-     res.send('Página de posts');
-});
-
 router.get("/categorias", (req, res) => {
      Categoria.find()
           .sort({ date: 'desc' })
@@ -130,7 +126,59 @@ router.post("/categorias/deletar", (req, res) => {
 });
 
 router.get("/postagens", (req, res) => {
-     res.render("admin/postagens");
+     Postagem.find()
+          .populate('categoria')
+          .sort({ data: "desc" })
+          .then((postagens) => { res.render("admin/postagens", { postagens: postagens }); })
+          .catch((erro) => {
+               req.flash("error_msg", "Houve um erro ao listar as postagens");
+               res.render("admin/postagens");
+          });
+});
+
+router.get("/postagens/edit/:id", (req, res) => {
+     Postagem.findOne({ _id: req.params.id })
+          .then((postagem) => {
+
+               Categoria.find()
+                    .then((categorias) => {
+                         res.render("admin/editpostagens", { categorias: categorias, postagem: postagem });
+                    })
+                    .catch((error) => {
+                         req.flash("error_msg", "Houve um erro ao listar as categorias");
+                         res.redirect("/adm/postagens");
+                    });
+
+          })
+          .catch((error) => {
+               req.flash("error_msg", "Houve um erro ao carregar o formulário de edição");
+               res.redirect("/adm/postagens");
+          })
+});
+
+router.post("/postagens/edit", (req, res) => {
+     Postagem.findOne({ _id: req.body.id })
+          .then((postagem) => {
+               postagem.titulo = req.body.titulo;
+               postagem.slug = req.body.slug;
+               postagem.descricao = req.body.descricao;
+               postagem.conteudo = req.body.conteudo;
+               postagem.categoria = req.body.categoria;
+
+               postagem.save()
+                    .then(() => {
+                         req.flash("success_msg", "Sucesso ao editar postagem!");
+                         res.redirect("/adm/postagens");
+                    })
+                    .catch((error) => {
+                         req.flash("error_msg", "Erro ao salvar edição da postagem");
+                         res.redirect("/adm/postagens");
+                    });
+          })
+          .catch((error) => {
+               req.flash("error_msg", "Houve um erro ao salvar a edição");
+               res.redirect('/adm/postagens');
+          })
 });
 
 router.get("/postagens/add", (req, res) => {
@@ -170,6 +218,18 @@ router.post("/postagens/nova", (req, res) => {
                     res.redirect("/adm/postagens");
                });
      }
+});
+
+router.get("/postagens/deletar/:id", (req, res) => {
+     Postagem.deleteOne({ _id: req.params.id })
+          .then(() => {
+               req.flash("success_msg", "Postagem deletada com sucesso");
+               res.redirect("/adm/postagens");
+          })
+          .catch((error) => {
+               req.flash("error_msg", "Houve um erro interno");
+               res.redirect("/adm/postagens");
+          });
 });
 
 module.exports = router;
