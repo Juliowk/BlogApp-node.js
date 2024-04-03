@@ -15,6 +15,9 @@ router.get("/categorias", (req, res) => {
      Categoria.find()
           .sort({ date: 'desc' })
           .then((categorias) => {
+               categorias = categorias.map(categoria => ({
+                    ...categoria.toObject(), date: categoria.date.toLocaleString()
+               }));
                res.render("admin/categorias", { categorias });
           })
           .catch((error) => {
@@ -129,7 +132,13 @@ router.get("/postagens", (req, res) => {
      Postagem.find()
           .populate('categoria')
           .sort({ data: "desc" })
-          .then((postagens) => { res.render("admin/postagens", { postagens: postagens }); })
+          .then((postagens) => {
+               postagens = postagens.map(postagem => ({
+                    ...postagem.toObject(), data: postagem.data.toLocaleString()
+               }));
+               console.log(postagens);
+               res.render("admin/postagens", { postagens: postagens });
+          })
           .catch((erro) => {
                req.flash("error_msg", "Houve um erro ao listar as postagens");
                res.render("admin/postagens");

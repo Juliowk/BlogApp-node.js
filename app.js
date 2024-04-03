@@ -28,6 +28,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 
 const Postagem = require("./models/Postagens"); // MODEL
+const Categoria = require("./models/Categoria"); // MODEL
 
 const app = express();
 
@@ -78,17 +79,82 @@ mongoose.connect("mongodb://localhost/blogapp")
 
 // ROTAS:
 app.get("/", (req, res) => {
-     Postagem.find().populate("categoria").sort({ data: "desc" })
-          .then((postagens) => { res.render("index", { postagens: postagens }); })
+     Postagem.find().populate("categoria")
+          .sort({ data: "desc" })
+          .then((postagens) => {
+               const formattedPostagens = postagens.map(postagem => ({
+                    ...postagem.toObject(),
+                    data: postagem.data.toLocaleString()
+               }));
+               res.render("index", { postagens: formattedPostagens });
+          })
           .catch((error) => {
                req.flash("error_msg", "Houve um erro interno")
                res.render("/404");
           });
 });
 
+app.get("/postagem/:slug", (req, res) => {
+     Postagem.findOne({ slug: req.params.slug })
+          .then((postagem) => {
+               if (postagem) {
+                    postagem = { ...postagem.toObject(), data: postagem.data.toLocaleString() }
+                    res.render("postagem/index", { postagem: postagem });
+               } else {
+                    req.flash("error_msg", "Está postagem não existe!");
+                    res.redirect("/");
+               }
+          })
+          .catch((error) => {
+               req.flash("error_msg", "Houve um erro interno!");
+               res.redirect("/")
+          })
+});
+
+app.get("/categorias", (req, res) => {
+     Categoria.find()
+          .sort({ date: 'desc' })
+          .then((categorias) => {
+               res.render("categorias/index", { categorias: categorias });
+          })
+          .catch((error) => {
+               req.flash("error_msg", "Houve um erro interno ao listar as categorias");
+               res.redirect("/");
+          })
+});
+
+app.get("/categorias/:slug", (req, res) => {
+     Categoria.findOne({ slug: req.params.slug })
+          .sort({ date: 'desc' })
+          .then((categoria) => {
+               if (categoria) {
+                    Postagem.find({ categoria: categoria._id })
+                         .sort({ data: 'desc' })
+                         .then((postagens) => {
+                              postagens = postagens.map(postagem => ({
+                                   ...postagem.toObject(), data: postagem.data.toLocaleString(), nomeCategoria: categoria.nome
+                              }));
+                              res.render("categorias/postagens", { postagens: postagens, categoria: categoria });
+                         })
+                         .catch((error) => {
+                              req.flash("error_msg", "Houve um erro ao listar os posts");
+                              res.redirect("/");
+                         });
+               } else {
+                    req.flash("error_msg", "Essa categoria não existe");
+                    res.redirect("/");
+               }
+          })
+          .catch((error) => {
+               req.flash("error_msg", "Houve um erro interno ao carregar a página dessa categoria");
+               res.redirect("/");
+          })
+});
+
 app.get("/404", (req, res) => {
      res.send("Erro 404!");
-})
+});
+
 app.use('/adm', routerAdmin);
 
 const PORT = 3000;
