@@ -3,9 +3,15 @@
   <p class="lead">Uma aplicação REST simples desenvolvida no ambiente Node.js,
     utilizando Express.js, MongoDB, e outras tecnologias!
   </p>
+  {{#if user}}
+
+  {{else}}
+
   <hr class="my-4" />
   <p class="text-secondary">Utilize o botão abaixo para criar sua conta.</p>
-  <a class="btn btn-secondary btn-lg" href="#" role="button">Crie uma conta</a>
+  <a class="btn btn-secondary btn-lg" href="/usuarios/registro" role="button">Crie uma conta</a>
+
+  {{/if}}
 </div>
 
 <hr />

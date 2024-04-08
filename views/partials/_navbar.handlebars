@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-white">
-  <a class="navbar-brand">BlogPosts</a>
+  <a class="navbar-brand" href="/">BlogPosts</a>
 
   <div class="collapse navbar-collapse" id="navbarNavDropdown">
     <ul class="navbar-nav">
@@ -10,12 +10,24 @@
       <li class="nav-item">
         <a class="nav-link" href="/categorias">Categorias</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Login</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Registro</a>
-      </li>
+
+      {{#if user}}
+
+        <li class="nav-item">
+          <a class="nav-link" href="/usuarios/deslogar">Deslogar</a>
+        </li>
+
+      {{else}}
+
+        <li class="nav-item">
+          <a class="nav-link" href="/usuarios/login">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/usuarios/registro">Registro</a>
+        </li>
+
+      {{/if}}
+
     </ul>
   </div>
   <form class="form-inline mt-3">

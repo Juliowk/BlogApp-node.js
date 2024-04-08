@@ -30,10 +30,14 @@ const flash = require('connect-flash');
 const Postagem = require("./models/Postagens"); // MODEL
 const Categoria = require("./models/Categoria"); // MODEL
 
+const passport = require("passport");
+require("./config/auth")(passport);
+
 const app = express();
 
 // REQUIRE DE ROTAS:
 const routerAdmin = require('./routes/admin');
+const routerUsuarios = require('./routes/usuario');
 
 // CONFIGURAÇÕES DE SESSÃO:
 app.use(session({ // utilizado para armazenar dados de sessão do usuário entre diferentes requisições HTTP
@@ -41,6 +45,10 @@ app.use(session({ // utilizado para armazenar dados de sessão do usuário entre
      resave: true,
      saveUninitialized: true
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(flash());
 
 // MIDDLEWARE:
@@ -48,6 +56,8 @@ app.use((req, res, next) => {
      // VARIAVEIS GLOBAIS: (acessaveis em qualquer parte do projeto)
      res.locals.success_msg = req.flash("success_msg");
      res.locals.error_msg = req.flash("error_msg");
+     res.locals.error = req.flash("error");
+     res.locals.user = req.user || null;
      next();
 });
 
@@ -156,6 +166,7 @@ app.get("/404", (req, res) => {
 });
 
 app.use('/adm', routerAdmin);
+app.use('/usuarios', routerUsuarios);
 
 const PORT = 3000;
 app.listen(PORT, () => { console.log(`APLICAÇÃO RODANDO EM: http://localhost:3000/`) });
